@@ -17,6 +17,7 @@ npm install
 
 ## Database setup
 
+For thise stage to complete successfully **Docker must be running**
 This repo initializes schema from `database/init.sql` on first Postgres volume boot.
 
 Run setup:
@@ -44,6 +45,26 @@ If you want to apply schema updates from backend code, run:
 
 ```bash
 npm run db:push --workspace=backend
+```
+
+## Integrated Development
+
+To run the full stack (frontend, backend, and Postgres) in containers:
+
+```bash
+npm run dev
+```
+
+This starts all services from `docker-compose.yml` and keeps them running with live rebuilds.
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:3001`
+- Postgres: `localhost:5432`
+
+To stop everything:
+
+```bash
+docker compose down
 ```
 
 ## Start backend
@@ -84,7 +105,6 @@ Open `http://localhost:3000`, create a person named `P1`, and confirm it appears
 
 ## Notes
 
-- Domain naming: this implementation uses `people` (not `products`), so DB schema and API routes are `/people`.
 - No JDK is required because backend/frontend are Node.js/TypeScript-based.
 - Preferred local workflow here is Docker Compose so frontend, backend, and Postgres share a consistent environment.
 
