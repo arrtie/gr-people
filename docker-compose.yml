@@ -1,0 +1,56 @@
+services:
+  postgres:
+    build: ./database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: npm run dev --workspace=backend
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/app
+      PORT: 3001
+      NODE_ENV: development
+    volumes:
+      - .:/workspace
+      - backend_root_node_modules:/workspace/node_modules
+      - backend_workspace_node_modules:/workspace/backend/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    command: npm run dev --workspace=frontend -- --hostname 0.0.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_INTERNAL_URL: http://backend:3001
+      NODE_ENV: development
+    volumes:
+      - .:/workspace
+      - frontend_root_node_modules:/workspace/node_modules
+      - frontend_workspace_node_modules:/workspace/frontend/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  backend_root_node_modules:
+  backend_workspace_node_modules:
+  frontend_root_node_modules:
+  frontend_workspace_node_modules:

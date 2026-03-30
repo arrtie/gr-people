@@ -1,0 +1,30 @@
+{
+  "name": "gr-take-home-test",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "docker:init": "docker compose build",
+    "db:init": "docker compose up -d postgres && node scripts/wait-for-db.mjs && echo \"Database ready (schema from database/init.sql on first boot).\"",
+    "dev": "docker compose up --build",
+    "dev:frontend": "docker compose up --build frontend",
+    "dev:backend": "docker compose up --build backend",
+    "dev:all": "npm run dev",
+    "deps:frontend:container": "docker compose run --rm frontend npm install --workspace=frontend",
+    "deps:backend:container": "docker compose run --rm backend npm install --workspace=backend",
+    "deps:container:ci": "docker compose run --rm frontend npm ci",
+    "test": "npm run test --workspace=frontend && dotenv -e .env -- npm run test --workspace=backend",
+    "test:integration": "docker compose up -d postgres && node scripts/wait-for-db.mjs && dotenv -e .env -- npm run test --workspace=backend",
+    "test:frontend": "npm run test --workspace=frontend",
+    "test:backend": "dotenv -e .env -- npm run test --workspace=backend",
+    "clean": "docker compose down -v --rmi local 2>/dev/null; npm run clean:artifacts",
+    "clean:artifacts": "rm -rf node_modules frontend/node_modules backend/node_modules frontend/.next backend/dist backend/coverage frontend/coverage"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7",
+    "dotenv-cli": "^8.0.0"
+  }
+}
